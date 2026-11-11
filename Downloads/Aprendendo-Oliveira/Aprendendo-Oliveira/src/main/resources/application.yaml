@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: Aprendendo-Oliveira
+
+server:
+  port: 8084
