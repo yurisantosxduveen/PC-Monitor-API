@@ -4,6 +4,7 @@ import com.pcmonitor.service.RamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.pcmonitor.dto.RamDTO;
 
 @RestController
 public class RamController {
@@ -15,7 +16,7 @@ public class RamController {
     }
 
     @GetMapping("/pc/ram")
-    public long buscarRam() {
+    public RamDTO buscarRam() {
         return service.buscarMemoriaTotal();
 
     }
