@@ -7,5 +7,6 @@ public record CpuDTO(
         int nucleosFisicos,
         int nucleosLogicos,
         double porcentualUso
+
 ) {
 }
