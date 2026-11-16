@@ -3,4 +3,5 @@ spring:
     name: pc-monitor-api
 
 server:
+  address: 127.0.0.1
   port: 2026
