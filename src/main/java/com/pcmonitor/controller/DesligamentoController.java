@@ -1,6 +1,7 @@
 package com.pcmonitor.controller;
 
 import com.pcmonitor.service.DesligamentoService;
+import lombok.Getter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;

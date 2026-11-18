@@ -2,13 +2,12 @@ spring:
   application:
     name: pc-monitor-api
 
-server:
-  address: 127.0.0.1
-  port: 2026
-
-Spring:
   security:
     user:
       name: Duveen
       password: YuriDev
       roles: ADMIN
+
+server:
+  address: 127.0.0.1
+  port: 2026
