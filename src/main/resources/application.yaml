@@ -8,6 +8,12 @@ spring:
       password: YuriDev
       roles: ADMIN
 
+      security:
+        user:
+          name: visitante
+          password: visitante123
+          roles: USER
+
 server:
   address: 127.0.0.1
   port: 2026
