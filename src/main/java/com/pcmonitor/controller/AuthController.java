@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,7 +23,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest loginRequest) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -31,6 +32,19 @@ public class AuthController {
                 )
         );
 
-        return jwtService.gerarToken(authentication);
+        String token = jwtService.gerarToken(authentication);
+
+        String permissao = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(authory -> authory.getAuthority().replace("ROLE_", ""))
+                .orElse("USER");
+
+        return new LoginResponse(
+                authentication.getName(),
+                permissao,
+                "Bearer",
+                token
+        );
+
     }
 }
