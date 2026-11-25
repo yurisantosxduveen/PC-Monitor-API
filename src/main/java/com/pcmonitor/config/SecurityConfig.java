@@ -3,6 +3,7 @@ package com.pcmonitor.config;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.pcmonitor.security.CustomAccessDeniedHandler;
+import com.pcmonitor.security.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,9 +34,14 @@ import java.nio.charset.StandardCharsets;
 public class SecurityConfig {
 
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    public SecurityConfig(CustomAccessDeniedHandler customAccessDeniedHandler) {
+    public SecurityConfig(
+            CustomAccessDeniedHandler customAccessDeniedHandler,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+
         this.customAccessDeniedHandler = customAccessDeniedHandler;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
     @Bean
@@ -62,37 +68,52 @@ public class SecurityConfig {
 
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity HTTP) throws Exception {
 
-    HTTP
-
-        .csrf(csrf -> csrf.disable())
+        HTTP
+                .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/auth/login").permitAll()
-                    .requestMatchers("/pc/desligar/**").hasRole("ADMIN")
-                    .anyRequest().authenticated()
-            )
+                .authorizeHttpRequests(auth -> auth
 
-            .exceptionHandling(exception -> exception
-                            .accessDeniedHandler(customAccessDeniedHandler)
-            )
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
 
-            .oauth2ResourceServer(oauth2 -> oauth2
-                    .jwt(jwt -> jwt
-                            .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                    )
-            );
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/error").permitAll()
 
-            return HTTP.build();
+                        .requestMatchers("/pc/desligar/**").hasRole("ADMIN")
+                        .requestMatchers("/pc/endpoints/**").hasRole("ADMIN")
+                        .requestMatchers("/pc/Alertas/**").hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
+                )
+
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
+
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
+                );
+
+        return HTTP.build();
 
     }
+
 
     @Bean
     public JwtEncoder jwtEncoder(
@@ -121,8 +142,6 @@ public class SecurityConfig {
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
     }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(

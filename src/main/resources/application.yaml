@@ -2,17 +2,13 @@ spring:
   application:
     name: pc-monitor-api
 
-  security:
-    user:
-      name: Duveen
-      password: YuriDev
-      roles: ADMIN
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 3600000
 
-      security:
-        user:
-          name: visitante
-          password: visitante123
-          roles: USER
+logging:
+  level:
+    org.springframework.security: TRACE
 
 server:
   address: 127.0.0.1
