@@ -1,5 +1,6 @@
 package com.pcmonitor.security;
 
+import com.pcmonitor.exception.ValidationErrorResponse;
 import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +9,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -23,17 +24,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException authenticationException
+            AuthenticationException exception
     ) throws IOException {
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        Map<String, Object> resposta = Map.of(
-                "status", 401,
-                "erro", "Não autenticado",
-                "mensagem", "Você precisa realizar o login para acessar este percurso"
+        ValidationErrorResponse resposta = new ValidationErrorResponse(
+                "Não autenticado",
+                List.of("Você precisa realizar o login para acessar este recurso."),
+                401
         );
 
         objectMapper.writeValue(response.getWriter(), resposta);

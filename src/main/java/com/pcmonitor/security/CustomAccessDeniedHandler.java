@@ -1,5 +1,6 @@
 package com.pcmonitor.security;
 
+import com.pcmonitor.exception.ValidationErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -24,17 +26,17 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(
             HttpServletRequest request,
             HttpServletResponse response,
-            AccessDeniedException accessDeniedException
+            AccessDeniedException exception
     ) throws IOException, ServletException {
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        Map<String, Object> resposta = Map.of(
-                "status", 403,
-                "erro", "Acesso negado",
-                "message", "Você não tem permissão para acessar este recurso."
+        ValidationErrorResponse resposta = new ValidationErrorResponse(
+                "Acesso negado",
+                List.of("Você não tem permissão para acessar este recurso"),
+                403
         );
 
         objectMapper.writeValue(response.getWriter(), resposta);

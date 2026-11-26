@@ -1,11 +1,14 @@
+
 package com.pcmonitor.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 
@@ -13,7 +16,8 @@ import java.util.List;
 public class ValidationExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> tratarErroDeValidacao(MethodArgumentNotValidException exception) {
+    public ResponseEntity<ValidationErrorResponse> tratarErroDeValidacao(
+            MethodArgumentNotValidException exception) {
 
         List<String> mensagens = exception.getBindingResult()
                 .getFieldErrors()
@@ -21,7 +25,7 @@ public class ValidationExceptionHandler {
                 .map(erro -> erro.getDefaultMessage())
                 .toList();
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        return ResponseEntity.badRequest().body(
                 new ValidationErrorResponse(
                         "Dados inválidos",
                         mensagens,
@@ -30,23 +34,49 @@ public class ValidationExceptionHandler {
         );
     }
 
-
-    @ExceptionHandler(
-            org.springframework.web.server.ResponseStatusException.class
-    )
-
+    @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ValidationErrorResponse> tratarErroDeRequisicao(
-            org.springframework.web.server.ResponseStatusException exception) {
+            ResponseStatusException exception) {
 
-    return ResponseEntity.status(exception.getStatusCode()).body(
-            new ValidationErrorResponse(
-                    "Muitas tentativas de login ",
-                    List.of("Usuários temporariamente bloqueado. Tente novamente em 5 minutos."),
-                    exception.getStatusCode().value()
-            )
+        String mensagem = exception.getReason() != null
+                ? exception.getReason()
+                : "Erro ao processar requisição";
+
+        return ResponseEntity.status(exception.getStatusCode()).body(
+                new ValidationErrorResponse(
+                        "Erro na requisição",
+                        List.of(mensagem),
+                        exception.getStatusCode().value()
+                )
         );
+    }
 
+    @ExceptionHandler({
+            NoHandlerFoundException.class,
+            NoResourceFoundException.class
+    })
+    public ResponseEntity<ValidationErrorResponse> tratarErroNaoEncontrado(
+            Exception exception) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ValidationErrorResponse(
+                        "Recurso não encontrado",
+                        List.of("O endpoint ou recurso solicitado não existe."),
+                        404
+                )
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ValidationErrorResponse> tratarErroInterno(
+            Exception exception) {
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                new ValidationErrorResponse(
+                        "Erro interno do servidor",
+                        List.of("Ocorreu um erro inesperado. Tente novamente mais tarde."),
+                        500
+                )
+        );
     }
 }
-
-
