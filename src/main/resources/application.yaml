@@ -3,12 +3,21 @@ spring:
     name: pc-monitor-api
 
 jwt:
-  secret: chave-temporaria-exclusiva-para-testes-2026
+  secret: ${JWT_SECRET}
   expiration: 3600000
+
+app:
+  security:
+    admin:
+      username: ${ADMIN_USERNAME}
+      password: ${ADMIN_PASSWORD}
+    user:
+      username: ${USER_USERNAME}
+      password: ${USER_PASSWORD}
 
 logging:
   level:
-    org.springframework.security: TRACE
+    org.springframework.security: INFO
 
 server:
   address: 127.0.0.1

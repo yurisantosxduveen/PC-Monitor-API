@@ -7,19 +7,36 @@ import java.io.IOException;
 @Service
 public class DesligamentoService {
 
-    public void desligarComputador() throws IOException {
+    public void desligarComputador() throws IOException, InterruptedException {
 
-        new ProcessBuilder("shutdown", "/s", "/t", "60").start();
+        Process processo = new ProcessBuilder(
+                "shutdown", "/s", "/t", "60")
+                .start();
 
+                int resultado = processo.waitFor();
 
+                if (resultado != 0) {
+                    throw new IOException(
+                            "Não foi possível iniciar o desligamento do computador."
+                    );
+                }
     }
 
-    public void cancelarDesligamento () throws IOException {
+    public void cancelarDesligamento () throws IOException, InterruptedException {
 
-        new ProcessBuilder("shutdown", "/a").start();
+        Process processo = new ProcessBuilder(
+                "shutdown", "/a")
+                .start();
 
+        int resultado = processo.waitFor();
+
+        if (resultado != 0) {
+            throw new IOException(
+                    "Não foi possível cancelar o desligamento do computador."
+            );
+
+        }
 
     }
-
 
 }

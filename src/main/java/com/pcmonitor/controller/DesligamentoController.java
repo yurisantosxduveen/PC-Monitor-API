@@ -1,7 +1,6 @@
 package com.pcmonitor.controller;
 
 import com.pcmonitor.service.DesligamentoService;
-import lombok.Getter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,8 +25,8 @@ public class DesligamentoController {
 
         service.desligarComputador();
 
-        return Map.of(
-                "mensagem", "Computador será desligado em 60 segundos.");
+            return Map.of(
+                    "mensagem", "Computador será desligado em 60 segundos.");
 
     }
 
@@ -35,6 +34,7 @@ public class DesligamentoController {
     public Map<String, String> cancelar() throws Exception {
 
     service.cancelarDesligamento();
+
         return Map.of(
                 "mensagem", "Desligamento cancelado."
         );
