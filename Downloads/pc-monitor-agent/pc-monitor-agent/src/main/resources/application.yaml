@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: pc-monitor-agent
+
+server:
+  port: 8080
